@@ -43,8 +43,7 @@ function displayItems() {
     connection.query("SELECT * FROM products", function (err, res) {
         if (err) {
             console.log(err)
-        }
-        ;
+        };
         // Create Table
         var tableDisplay = new table({
             head: ['ID #', 'Product', 'Department', 'Price', 'Qty'],
@@ -56,10 +55,10 @@ function displayItems() {
             tableDisplay.push([res[i].item_id, res[i].product_name, res[i].department_name, res[i].price.toFixed(2), res[i].stock_quanity]);
         }
         console.log(tableDisplay.toString());
-        selectItems();
     });
 
-}
+    selectItems();
+};
 
 //======================Prompt User what to Purchase=================
 function selectItems() {
@@ -67,26 +66,29 @@ function selectItems() {
     inquirer
         .prompt([
             {
-                name: 'ID',
-                type: 'input',
-                messsage: 'Please input the number of the Item you would like to purchase'
+                type: "input",
+                message: "Please input the number of the Item you would like to purchase",
+                name: "ID"
             },
+
             {
-                name: 'QTY',
-                type: 'input',
-                message: 'How many would you like to buy?'
-            },
-    ]).then(function (answers) {
-        var wantedQty = answers.QTY;
-        var wantedID = answers.ID;
-        purchased(wantedID, wantedQty);
-    });
-    
+                type: "input",
+                message: "How many would you like to buy? (Please use number keys)",
+                name: "QTY"
+            }
+        ])
+        .then(function(answers) {
+            // If the inquirerResponse confirms, we displays the inquirerResponse's username and pokemon from the answers.
+            var wantedQty = answers.QTY;
+                var wantedID = answers.ID;
+              purchased(wantedID, wantedQty);
+            });
+
 };
 
 //=========================Check Inventory===============================
 function purchased(ID, neededQty) {
-    conection.query('SELECT * FROM products WHERE item_id = ' + ID, function (err, res) {
+    connection.query('SELECT * FROM products WHERE item_id = ' + ID, function (err, res) {
         if (err) {console.log(err)};
         //in stock
         if (neededQty <= res[0].stock_quanity) {
