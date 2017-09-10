@@ -11,7 +11,7 @@
     //update SQL database
     //show total cost
 //+++++++++++++++++++++++++++++++++++++++++++++++
-
+const key = require('./keys.js');
 //requirements
 const inquirer = required('inquirer');
 const mysql = require("mysql");
@@ -27,7 +27,7 @@ const connection = mysql.createConnection({
     user:'root',
 
     //Paasword
-    password: '13Wolfdragon',
+    password: key,
     database: 'bamazon_DB'
 });
 //===================Global Variables======================
@@ -67,3 +67,7 @@ function displayItems() {
 
 //======================Prompt User what to Purchase=================
 
+//=======================Select Items================================
+function selectItems() {
+    
+}
