@@ -13,9 +13,8 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++
 const key = require('./keys.js');
 //requirements
-const inquirer = required('inquirer');
+const inquirer = require('inquirer');
 const mysql = require("mysql");
-const fs = require('fs');
 const table = require('cli-table')
 
 //===================create connection==================
@@ -30,9 +29,6 @@ const connection = mysql.createConnection({
     password: key,
     database: 'bamazon_DB'
 });
-//===================Global Variables======================
-const cart = [];
-const total = 0;
 
 
 //=======================connect to DB======================
@@ -44,7 +40,7 @@ connection.connect(function(err){
 
 //================display Items for sale===================
 function displayItems() {
-    connection.query("SELECT * FROM auctions", function (err, res) {
+    connection.query("SELECT * FROM products", function (err, res) {
         if (err) {
             console.log(err)
         }
@@ -57,7 +53,7 @@ function displayItems() {
 
         //Grab rows from DB and place them into table
         for (var i = 0; i < res.length; i++) {
-            tableDisplay.push([res[i].item_id, res[i].product_name, res[i].department_name, res[i].price.toFixed(2), res[i]stock_quanity]);
+            tableDisplay.push([res[i].item_id, res[i].product_name, res[i].department_name, res[i].price.toFixed(2), res[i].stock_quanity]);
         }
         console.log(tableDisplay.toString());
         selectItems();
@@ -66,8 +62,44 @@ function displayItems() {
 }
 
 //======================Prompt User what to Purchase=================
-
-//=======================Select Items================================
 function selectItems() {
+
+    inquirer
+        .prompt([
+            {
+                name: 'ID',
+                type: 'input',
+                messsage: 'Please input the number of the Item you would like to purchase'
+            },
+            {
+                name: 'QTY',
+                type: 'input',
+                message: 'How many would you like to buy?'
+            },
+    ]).then(function (answers) {
+        var wantedQty = answers.QTY;
+        var wantedID = answers.ID;
+        purchased(wantedID, wantedQty);
+    });
     
+};
+
+//=========================Check Inventory===============================
+function purchased(ID, neededQty) {
+    conection.query('SELECT * FROM products WHERE item_id = ' + ID, function (err, res) {
+        if (err) {console.log(err)};
+        //in stock
+        if (neededQty <= res[0].stock_quanity) {
+            var total = res[0].price * neededQty;
+            // console log the good news
+            console.log("Hoora! your purchase was a success");
+            // console log total
+            console.log("Item: " + res[0].product_name + "Quanity: " + neededQty + "Total: " + total)
+            // minus product from DB
+            connection.query('UPDATE products SET stock_quanity = stock_quanity - ' + neededQty + ' WHERE item_id = ' + ID);
+        } else {
+            console.log("Sorry we are out of that Item")
+        };
+        displayItems();
+    });
 }
